@@ -107,49 +107,56 @@ H = Hl[:, ndim + 1:]
 
 #cssの定義
 ndim = 3
-css = np.zeros((len(xs) + ndim + 1, len(xs) + ndim + 1))
-css[ndim + 1:, 0] = 1.
-css[0, ndim + 1:] = 1.
-css[ndim + 1:, 1] = xs.T
-css[1, ndim + 1:] = xs
-css[ndim + 1:, 2] = ys.T
-css[2, ndim + 1:] = ys
-css[ndim + 1:, 3] = zs.T
-css[3, ndim + 1:] = zs
+css2 = np.zeros((len(xa) + ndim + 1, len(xa) + ndim + 1))
+css2[ndim + 1:, 0] = 1.
+css2[0, ndim + 1:] = 1.
+css2[ndim + 1:, 1] = xa.T
+css2[1, ndim + 1:] = xa
+css2[ndim + 1:, 2] = ya.T
+css2[2, ndim + 1:] = ya
+css2[ndim + 1:, 3] = za.T
+css2[3, ndim + 1:] = za
 
 
-css_1 = np.zeros((len(xs), len(xs)))
-for i in range(len(xs)):
-    for j in range(len(xs)):
-        r1 = math.sqrt((xs[i] - xs[j])**2 + (ys[i] - ys[j])**2 + (zs[i] - zs[j])**2)
-        css_1[i, j] = func(r1)
+css_2 = np.zeros((len(xa), len(xa)))
+for i in range(len(xa)):
+    for j in range(len(xa)):
+        r3 = math.sqrt((xa[i] - xa[j])**2 + (ya[i] - ya[j])**2 + (za[i] - za[j])**2)
+        css_2[i, j] = func(r3)
 
-css[ndim + 1:, ndim + 1:] = css_1
-css_inv =  np.linalg.pinv(css)
+css2[ndim + 1:, ndim + 1:] = css_2
+css2_inv =  np.linalg.pinv(css2)
 
 #aasの定義
-aas = np.zeros((len(xa), len(xs) + ndim + 1))
+aas2 = np.zeros((len(xs), len(xa) + ndim + 1))
 
-aas[:, 0] = 1.
-aas[:, 1] = xa.T
-aas[:, 2] = ya.T
-aas[:, 3] = za.T
+aas2[:, 0] = 1.
+aas2[:, 1] = xs.T
+aas2[:, 2] = ys.T
+aas2[:, 3] = zs.T
 
-aas_1 = np.zeros((len(xa), len(xs)))
-for i in range(len(xa)):
-    for j in range(len(xs)):
-        r2 = math.sqrt((xa[i] - xs[j])**2 + (ya[i] - ys[j])**2 + (za[i] - zs[j])**2)
-        aas_1[i, j] = func(r2)
+aas_2 = np.zeros((len(xs), len(xa)))
+for i in range(len(xs)):
+    for j in range(len(xa)):
+        r4 = math.sqrt((xs[i] - xa[j])**2 + (ys[i] - ya[j])**2 + (zs[i] - za[j])**2)
+        aas_2[i, j] = func(r4)
 
-aas[:, ndim + 1:] = aas_1
+aas2[:, ndim + 1:] = aas_2
 
 #Hlマトリックスの計算
-Hl = np.dot(aas, css_inv)
+Hl2 = np.dot(aas, css_inv)
 
 #Hlからいらない成分を取り出す
-H = Hl[:, ndim + 1:]
+H2 = Hl[:, ndim + 1:]
 
+#psiの定義←修正必要----------------------------------------------------------------------------
+one_a = np.ones(Na)
+one_s = np.ones(Ns)
 
+psi = (np.dot(one_a.T, fa.T))/(one_s @ H2 @ fa.T)
+
+fs = psi * np.dot(H2, fa.T)
+H3 = psi * H2
 
 
 #-----------------------------------------------------------------------------------------
